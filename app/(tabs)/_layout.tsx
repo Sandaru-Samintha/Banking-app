@@ -1,45 +1,38 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { Tabs } from "expo-router";
+import { Text } from "react-native";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
+  // <>
+  //   {/* <Text>Sandaru samintha</Text> */}
+  
+  //   <Tabs />
+  //   {/* //<Text>Sandaru samintha</Text> */}
+
+  // </>
+
+
+  //***********we define the screen using this methode******
+  /* this means  the name is index page screen its tilte is Home (bottom of the page display  "Home")*/
+
+  <Tabs screenOptions={{tabBarActiveTintColor:"#3a00f7",tabBarActiveBackgroundColor:"#b2d8f7"}}>
+    <Tabs.Screen 
+      name="index"  options={{
+      title:"Home", 
+      tabBarIcon:({color,focused})=>{
+        return focused?(
+            <FontAwesome5 name="home" size={24} color={color} />):(<AntDesign name="home" size={24} color="black" />); {/*this means if the icon is focused true it colr is blue and it icon should be FontAwesome5 icon other wise it color is black and icon is AntDesign */}
+      
           },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
+      }}
       />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+
+
+    <Tabs.Screen name="login" options={{title:"Login"}}/> {/**this page is not exist so we get that screen, we should navigate  the index.tsx  and link the login page */}
+  </Tabs>
+
+
   );
 }
