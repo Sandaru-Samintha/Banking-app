@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import {Button, Text,TextInput,useTheme} from "react-native-paper"
 import { Link, useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '@/lib/auth-context';
 
 const   Register=()=> {
 
@@ -12,6 +13,8 @@ const   Register=()=> {
   const [password,setPassword]=useState<string>("")
   const[error,setError]=useState<string|null>("")
   const theme=useTheme()
+
+  const {signUp}=useAuth();
 
   const handleAuth=async()=>{
     if(!(email||password)){
@@ -23,6 +26,14 @@ const   Register=()=> {
       return;
     }
     setError(null);
+    //there is no error in the sign in
+    const error =await signUp(email,password);
+    if(error){
+      setError(error)
+      return 
+    }
+    router.replace('/(tabs)')
+    
   };
 
   {/*this is the basic normal view,this cas can keyboard ovelapping stop using keyboardAvoidingView  */}
@@ -34,7 +45,7 @@ const   Register=()=> {
 
         <TextInput  style={styles.TextInput} label="Email" autoCapitalize='none' placeholder='examle@gmail.com' keyboardType='email-address' mode='outlined' onChangeText={setEmail}/>
 
-        <TextInput style={styles.TextInput} label="Password" keyboardType='default' autoCapitalize='none'   mode='outlined' onChangeText={setPassword}/>
+        <TextInput style={styles.TextInput} label="Password" secureTextEntry autoCapitalize='none'   mode='outlined' onChangeText={setPassword}/>
 
         {error && (
           <Text style={{color:theme.colors.error}}>{error}</Text>

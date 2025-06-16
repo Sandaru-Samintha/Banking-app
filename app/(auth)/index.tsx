@@ -1,58 +1,86 @@
 import { KeyboardAvoidingView,Platform,StyleSheet,TouchableOpacity,View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {Button, Text,TextInput,useTheme} from "react-native-paper"
-import { Link, useRouter } from 'expo-router'
+import { Link, useRouter, useSegments } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '@/lib/auth-context';
 
 const   Index=()=> {
 
-const router = useRouter()
+
 const [email,setEmail]=useState<string>("") //this means first start string is null and create the state
 const [password,setPassword]=useState<string>("")
 const[error,setError]=useState<string|null>("")
 const theme=useTheme()
-  
-  const handleAuth=async()=>{
-    if(!email||!password){
-      setError("Please fill in all fields.");
-      return;
+
+
+const {user, isLoadingUser, signIn} = useAuth(); 
+
+const segments = useSegments()
+const router = useRouter()
+
+
+useEffect(()=>{
+  const inAuthGroup = segments[0]==="(auth)"
+  if(!user && !inAuthGroup && !isLoadingUser){
+    router.replace('/(auth)')
+  }
+  else if (user && inAuthGroup && !isLoadingUser){
+    router.replace('/(tabs)')
     }
-    if(password.length< 6 ){
-      setError("Passwords must be at least 6 characters long.");
-      return;
-    }
+  },[user,isLoadingUser,segments])
 
-    setError(null);
-  };
+
+
+
+const handleAuth=async()=>{
+  if(!email||!password){
+    setError("Please fill in all fields.");
+    return;
+  }
+  if(password.length< 6 ){
+    setError("Passwords must be at least 6 characters long.");
+    return;
+  }
+
+  setError(null);
+  //there is no error in password and go to th esign condition
+  const error =await signIn(email,password);
+  if(error){
+    setError(error)
+    return
+    
+  }
   
+};
+  
+{/*this is the basic normal view,this cas can keyboard ovelapping stop using keyboardAvoidingView  */}
+return (
+  <SafeAreaView style={{flex:1}}>
+  <KeyboardAvoidingView  style={styles.container} behavior={Platform.OS==="ios" ? "padding":"height"}> 
+    <View style={styles.contain}>
+      <Text style={styles.topText}>Welcome..!</Text>
 
-  {/*this is the basic normal view,this cas can keyboard ovelapping stop using keyboardAvoidingView  */}
-  return (
-    <SafeAreaView style={{flex:1}}>
-    <KeyboardAvoidingView  style={styles.container} behavior={Platform.OS==="ios" ? "padding":"height"}> 
-      <View style={styles.contain}>
-        <Text style={styles.topText}>Welcome..!</Text>
+      <TextInput  style={styles.TextInput} label="Email" autoCapitalize='none' placeholder='examle@gmail.com' keyboardType='email-address' mode='outlined' onChangeText={setEmail}/>
 
-        <TextInput  style={styles.TextInput} label="Email" autoCapitalize='none' placeholder='examle@gmail.com' keyboardType='email-address' mode='outlined' onChangeText={setEmail}/>
+      <TextInput style={styles.TextInput} label="Password" secureTextEntry autoCapitalize='none'   mode='outlined'onChangeText={setPassword}/>
 
-        <TextInput style={styles.TextInput} label="Password" keyboardType='default' autoCapitalize='none'   mode='outlined'onChangeText={setPassword}/>
+      {error && (
+          <Text style={{color:theme.colors.error}}>{error}</Text>
+      )}
 
-        {error && (
-            <Text style={{color:theme.colors.error}}>{error}</Text>
-          )}
+      <TouchableOpacity  onPress={handleAuth}>
+          <Button mode='contained' style={styles.button}>Sign in</Button>
+      </TouchableOpacity>
 
-        <TouchableOpacity  onPress={handleAuth}>
-            <Button mode='contained' style={styles.button}>Sign in</Button>
-        </TouchableOpacity>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center',marginTop:8 }}>
-          <Text>Don't have an account? </Text>
-          <Link href='/(auth)/register'><Text style={{color:"red",fontSize:15}} >Sign up</Text></Link>
-        </View>
-
+      <View style={{ flexDirection: 'row', alignItems: 'center',marginTop:8 }}>
+        <Text>Don't have an account? </Text>
+        <Link href='/(auth)/register'><Text style={{color:"red",fontSize:15}} >Sign up</Text></Link>
       </View>
-    </KeyboardAvoidingView>
-    </SafeAreaView>
+
+    </View>
+  </KeyboardAvoidingView>
+  </SafeAreaView>
   )
 }
 export default Index;
