@@ -17,7 +17,7 @@ export default function LoginLayout() {
   // }
 
   return (
-   
+  
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Index" options={{ headerShown: false }} />
         <Stack.Screen name="Register" />

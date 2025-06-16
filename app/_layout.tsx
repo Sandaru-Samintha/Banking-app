@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/lib/auth-context";
 import { Stack,useRouter} from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -37,12 +38,13 @@ export default function RootLayout() {
 
   //***********we define the screen using this methode******
     //<RouteGuard>
+    <AuthProvider>
     <Stack>
       <Stack.Screen name="(auth)"  options={{headerShown:false }}/>
       <Stack.Screen name="(tabs)"  options={{headerShown:false }}/> {/* this means  the name is index page screen its tilte is Home screen in the heder we dont show this header so we use headershow false (top of the page display "Home")*/}
       
     </Stack>
-    //<StatusBar style="auto"/>
+    </AuthProvider>
     //</RouteGuard>
 
 
