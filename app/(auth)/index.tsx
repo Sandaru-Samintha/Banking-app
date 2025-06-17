@@ -22,11 +22,11 @@ const router = useRouter()
 
 useEffect(()=>{
   const inAuthGroup = segments[0]==="(auth)"
-  if(!user && !inAuthGroup && !isLoadingUser){
-    router.replace('/(auth)')
-  }
-  else if (user && inAuthGroup && !isLoadingUser){
-    router.replace('/(tabs)')
+    if(!user && !inAuthGroup && !isLoadingUser){
+      router.replace('/(auth)')
+    }
+    else if (user && inAuthGroup && !isLoadingUser){
+      router.replace('/(tabs)')
     }
   },[user,isLoadingUser,segments])
 

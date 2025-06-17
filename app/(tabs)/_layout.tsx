@@ -2,8 +2,24 @@ import { Tabs } from "expo-router";
 import { Text } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+
+
 
 export default function TabsLayout() {
+
+  const { user, isLoadingUser } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user && !isLoadingUser) {
+      router.replace("/(auth)");
+    }
+  }, [user, isLoadingUser]);
+
+
   return (
   // <>
   //   {/* <Text>Sandaru samintha</Text> */}

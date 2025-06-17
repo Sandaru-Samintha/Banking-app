@@ -10,6 +10,7 @@ type AuthContextType={
   isLoadingUser:boolean;
   signUp:(email:string,password:string)=>Promise<string|null>; //in this pass the error message of string in the sign up without error pass the null
   signIn:(email:string,password:string)=>Promise<string|null>;//in this pass the error message of string in the sign in without error pass the null
+  signOut:()=>Promise<void>;
 };
 
 //This sets up a context that will provide authentication functions (signUp and signIn) to the rest of the app.
@@ -59,7 +60,9 @@ export function AuthProvider({children}:{children:React.ReactNode}){
   const signIn=async(email:string,password:string)=>{
     try{
       await account.createEmailPasswordSession(email,password);
-      return null
+      const session=await account.get()
+      setUser(session);
+      return null;
     }
     catch(error){
       if(error instanceof Error){
@@ -69,10 +72,19 @@ export function AuthProvider({children}:{children:React.ReactNode}){
     }
   }
 
+  const signOut=async()=>{
+    try{
+      await account.deleteSession("current");
+      setUser(null);
+    }catch(error){
+      console.log(error);
+    }
+    
+  }
 
 
   return(
-    <AuthContext.Provider value={{user,isLoadingUser,signIn,signUp}}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{user,isLoadingUser,signIn,signUp,signOut}}>{children}</AuthContext.Provider>
   );
 
 }

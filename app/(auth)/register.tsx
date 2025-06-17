@@ -32,7 +32,7 @@ const   Register=()=> {
       setError(error)
       return 
     }
-    router.replace('/(tabs)')
+     router.replace('/(tabs)');
     
   };
 
