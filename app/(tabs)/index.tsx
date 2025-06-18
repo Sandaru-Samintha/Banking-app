@@ -1,16 +1,18 @@
 import { Text, View,StyleSheet } from "react-native";
-import { Link } from "expo-router";
 import { Button } from "react-native-paper";
 import { useAuth } from "@/lib/auth-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const {signOut}=useAuth();
   
   return (
-    <View style={styles.view}>
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-      <Button mode="text" onPress={signOut} icon="logout">Log out</Button>
-    </View>
+    <SafeAreaView style={{flex:1}}>
+      <View style={styles.view}>
+        <Text>Edit app/index.tsx to edit this screen.</Text>
+        <Button mode="text" onPress={signOut} icon="logout">Log out</Button>
+      </View>
+    </SafeAreaView>
   );
 }
 

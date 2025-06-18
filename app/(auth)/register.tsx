@@ -43,7 +43,7 @@ const   Register=()=> {
       <View style={styles.contain}>
         <Text style={styles.topText}>Create Account</Text>
 
-        <TextInput  style={styles.TextInput} label="Email" autoCapitalize='none' placeholder='examle@gmail.com' keyboardType='email-address' mode='outlined' onChangeText={setEmail}/>
+        <TextInput  style={styles.TextInput} label="Email" autoCapitalize='none' placeholder='example@gmail.com' keyboardType='email-address' mode='outlined' onChangeText={setEmail}/>
 
         <TextInput style={styles.TextInput} label="Password" secureTextEntry autoCapitalize='none'   mode='outlined' onChangeText={setPassword}/>
 

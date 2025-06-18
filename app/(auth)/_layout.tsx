@@ -20,9 +20,8 @@ export default function LoginLayout() {
   return (
   
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Index" options={{ headerShown: false }} />
-        <Stack.Screen name="Register" />
-        <Stack.Screen name="RegisterStep02" />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="register" />
         {/* <Stack.Screen name="+not-found" /> */}
       </Stack>
     // <StatusBar style="auto" /> 
