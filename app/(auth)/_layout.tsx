@@ -24,7 +24,7 @@ export default function LoginLayout() {
         <Stack.Screen name="register" />
         {/* <Stack.Screen name="+not-found" /> */}
       </Stack>
-    // <StatusBar style="auto" /> 
+    // <StatusBar style="auto" />
   
   );
 }

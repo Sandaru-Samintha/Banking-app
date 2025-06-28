@@ -13,7 +13,7 @@ export const client = new Client() //connect the authers
   export const HABITS_COLLECTION_ID =process.env.EXPO_PUBLIC_HABITS_COLLECTION_ID!;
 
 
-  export interface RealtimeResponce{
+  export interface RealtimeResponse{
     events:string[];
     payload:any;
   }
