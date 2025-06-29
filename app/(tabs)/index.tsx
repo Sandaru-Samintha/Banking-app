@@ -15,7 +15,7 @@ export default function Index() {
 
  //create the habits in types folder reusing because any type of habits use in this
   const [habits,setHabits]=useState<Habit[]>();
-  const [completedhabits,setCompletedHabits]=useState<string[]>();
+  const [completedHabits,setCompletedHabits]=useState<string[]>();
 
   const SwipeableRefs =useRef<{[key:string] : Swipeable |null}>({})
 
@@ -92,7 +92,8 @@ export default function Index() {
       const response = await databases.listDocuments(
         DATABASE_ID,
         COMPLETIONS_COLLECTION_ID,
-        [Query.equal("user_id",user?.$id?? ""),Query.greaterThanEqual("completed_at",today.toISOString()),]
+        [Query.equal("user_id",user?.$id?? ""),
+        Query.greaterThanEqual("completed_at",today.toISOString()),]
       );
       const completions =response.documents as HabitCompletion[];
       setCompletedHabits(completions.map((c)=>c.habit_id));
@@ -111,7 +112,7 @@ export default function Index() {
   }
 
   const handleCompleteHabit =async(id:string)=>{
-    if(!user || completedhabits?.includes(id)) return;
+    if(!user || completedHabits?.includes(id)) return;
     try{
 
       const currentDate =new Date().toISOString()
@@ -136,7 +137,7 @@ export default function Index() {
     }
   }
 
-  const isHabitCompleted =(habitId:string)=>completedhabits?.includes(habitId);
+  const isHabitCompleted =(habitId:string)=>completedHabits?.includes(habitId);
 
   const renderRightActions =(habitId:string)=>(
     <View style={styles.swipeActionRight}>
