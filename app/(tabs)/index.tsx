@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { client, COMPLETIONS_COLLECTION_ID, DATABASE_ID, databases, HABITS_COLLECTION_ID, RealtimeResponse } from "@/lib/appwrite";
 import { ID, Query } from "react-native-appwrite";
 import {  useEffect, useRef, useState } from "react";
-import { Habit } from "@/database.type";
+import { Habit, HabitCompletion } from "@/database.type";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
 import Streak from "./streaks";
@@ -15,6 +15,7 @@ export default function Index() {
 
  //create the habits in types folder reusing because any type of habits use in this
   const [habits,setHabits]=useState<Habit[]>();
+  const [completedhabits,setCompletedHabits]=useState<string[]>();
 
   const SwipeableRefs =useRef<{[key:string] : Swipeable |null}>({})
 
@@ -22,8 +23,8 @@ export default function Index() {
 
     if(user){
   
-      const channel=`databases.${DATABASE_ID}.collections.${HABITS_COLLECTION_ID}.documents`
-      const habitsSubscription =client.subscribe(channel,
+      const habitsChannel=`databases.${DATABASE_ID}.collections.${HABITS_COLLECTION_ID}.documents`
+      const habitsSubscription =client.subscribe(habitsChannel,
         (response:RealtimeResponse)=>{
           if(response.events.includes(
             "databases.*.collection.*.document.*.create"
@@ -45,9 +46,25 @@ export default function Index() {
       }
       );
 
+
+      const completionsChannel=`databases.${DATABASE_ID}.collections.${COMPLETIONS_COLLECTION_ID}.documents`
+      const completionsSubscription =client.subscribe(completionsChannel,
+        (response:RealtimeResponse)=>{
+          if(response.events.includes(
+            "databases.*.collection.*.document.*.create"
+          )
+        ){
+          fetchTodayCompletions();
+        }
+      }
+      );
+
       fetchHabits();
+      fetchTodayCompletions();
+
       return ()=>{
         habitsSubscription();
+        completionsSubscription();
       }
     }
 
@@ -68,6 +85,23 @@ export default function Index() {
     }
   };
 
+  const fetchTodayCompletions = async()=>{
+    try{
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COMPLETIONS_COLLECTION_ID,
+        [Query.equal("user_id",user?.$id?? ""),Query.greaterThanEqual("completed_at",today.toISOString()),]
+      );
+      const completions =response.documents as HabitCompletion[];
+      setCompletedHabits(completions.map((c)=>c.habit_id));
+    }catch(error){
+      console.log(error);
+      
+    }
+  };
+
   const handleDeleteHabit =async(id:string)=>{
     try{
       await databases.deleteDocument(DATABASE_ID,HABITS_COLLECTION_ID,id)
@@ -77,7 +111,7 @@ export default function Index() {
   }
 
   const handleCompleteHabit =async(id:string)=>{
-    if(!user) return;
+    if(!user || completedhabits?.includes(id)) return;
     try{
 
       const currentDate =new Date().toISOString()
@@ -102,10 +136,17 @@ export default function Index() {
     }
   }
 
-  const renderRightActions =()=>(
+  const isHabitCompleted =(habitId:string)=>completedhabits?.includes(habitId);
+
+  const renderRightActions =(habitId:string)=>(
     <View style={styles.swipeActionRight}>
+      {isHabitCompleted(habitId) ?( 
+        <Text style={{color:"#fff",fontSize:16,fontWeight: 'bold'}}>Completed !</Text>
+      ):(
       <MaterialCommunityIcons name="check-circle-outline" size={32} color={"#fff"}/>
+      )}
     </View>
+    
   );
 
   const renderLeftActions =()=>(
@@ -130,14 +171,14 @@ export default function Index() {
             </View>
           ):(
             habits?.map((habit,key) => (
-            <Swipeable 
+            <Swipeable
               ref ={(ref)=>{
               SwipeableRefs.current[habit.$id]= ref;
             }}key={key}
             overshootLeft={false}
             overshootRight={false}
             renderLeftActions={renderLeftActions}
-            renderRightActions={renderRightActions}
+            renderRightActions={()=>renderRightActions(habit.$id)}
             onSwipeableOpen={(direction)=>{
               if(direction==="left"){
                 handleDeleteHabit(habit.$id);
@@ -150,7 +191,7 @@ export default function Index() {
             }}
 
             >
-              <Surface style={styles.card} elevation={0}>
+              <Surface style={[styles.card,isHabitCompleted(habit.$id)&& styles.cardCompleted]} elevation={0}>
                 <View  style={styles.cardContent}>
                   <Text style={styles.cardTitle}>{habit.tittle}</Text>
                   <Text style={styles.cardDescription}>{habit.description}</Text>
@@ -159,8 +200,8 @@ export default function Index() {
                     <View style={styles.streakBadge}>
                       {" "}
                       <MaterialCommunityIcons 
-                      name="fire" 
-                      size={24} 
+                      name="fire"
+                      size={24}
                       color="#ff9800" />
                       <Text style={styles.streakText}>{habit.streak_count} day streak</Text>
                     </View >
@@ -202,12 +243,15 @@ const styles =StyleSheet.create({
   card:{
     marginBottom:18,
     borderRadius:18,
-    backgroundColor:"#d9e6f8",
+    backgroundColor:"#c7dbf8",
     shadowColor:"#000",
     shadowOffset:{width:0,height:2},
     shadowOpacity:0.08,
     shadowRadius:8,
     elevation:4
+  },
+  cardCompleted:{
+    opacity:0.6,
   },
   cardContent:{
     padding:15
@@ -282,15 +326,6 @@ const styles =StyleSheet.create({
     marginTop:2,
     paddingLeft:16
   }
-  // naviButton:{
-  //   width:100,
-  //   height:20,
-  //   backgroundColor:"#ff5100",
-  //   borderRadius:12,
-  //   textAlign:"center",
-  //   alignItems: "center"
-  // }
-
-
+  
 })
 
