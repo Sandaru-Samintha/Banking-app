@@ -1,10 +1,12 @@
-import { View, Text } from 'react-native'
+import { View, StyleSheet,ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Habit, HabitCompletion } from '@/database.type';
 import { useAuth } from '@/lib/auth-context';
 import { COMPLETIONS_COLLECTION_ID, DATABASE_ID, databases, HABITS_COLLECTION_ID } from '@/lib/appwrite';
 import { Query } from 'react-native-appwrite';
+import { Card, Text } from 'react-native-paper';
+
 
 const Streak = () => {
 
@@ -99,15 +101,144 @@ const Streak = () => {
     })
 
     return{ streak , bestStreak , total };
-  }
+  };
 
+  const habitStreaks = habits.map((habit)=>{
+    const {streak,bestStreak,total} = getStreakData(habit.$id);
+    return{habit,bestStreak,streak ,total}
+  });
+
+  const rankedHabits =habitStreaks.sort((a,b)=>a.bestStreak-b.bestStreak)
+  //console.log(rankedHabits.map((h)=>h.habit.tittle));
+  
   return (
     <SafeAreaView style={{flex:1}}>
-    <View>
-      <Text>Habit Streaks</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Habit Streaks</Text>
+    <ScrollView>
+      {habits.length ===0 ?(
+        <View  >
+          {" "}
+          <Text >No Habits yet.Add your first habit !</Text>
+        </View>
+      ):(
+        rankedHabits.map(({habit,streak,bestStreak,total},key)=>
+          <Card key={key} style={[styles.card , key=== 0 && styles.firstCard]}>
+            <Card.Content >
+              <Text variant='titleMedium' style={styles.habitTittle}>{habit.tittle}</Text>
+              <Text style={styles.habitDescription}>{habit.description}</Text>
+              <View style={styles.statsRow}>
+                
+                <View style={styles.statBadge}>
+                  <Text style={styles.statBadgeText}>🔥{streak}</Text>
+                  <Text style={styles.statLabel}>Current</Text>
+                </View>
+            
+              
+                <View style={styles.statBadgeGold}>
+                  <Text style={styles.statBadgeText}>🏆{bestStreak}</Text>
+                  <Text style={styles.statLabel}>Best</Text>
+                </View>
+              
+              
+                <View style={styles.statBadgeGreen}>
+                  <Text style={styles.statBadgeText}>✅{total}</Text>
+                  <Text style={styles.statLabel}>Total</Text>
+                </View> 
+
+              </View>
+              
+            </Card.Content>
+          </Card>)
+
+        )}
+        </ScrollView>
     </View>
     </SafeAreaView>
   )
 }
 
 export default Streak
+
+
+const styles = StyleSheet.create ({
+  container:{
+    flex:1,
+    backgroundColor:"#f5f5f5",
+    padding:16
+  },
+  title:{
+    fontWeight:"bold",
+    marginBottom:16,
+    marginTop:-20,
+    
+  },
+  card:{
+      marginBottom:18,
+      borderRadius:18,
+      backgroundColor:'#fff',
+      elevation:3,
+      shadowColor:"#000",
+      shadowOffset:{width:0,height:2},
+      shadowOpacity:0.08,
+      shadowRadius:8,
+      borderWidth:1,
+      borderColor:"#f0f0f0",
+
+    },
+  habitTittle:{
+    fontWeight:"bold",
+    fontSize:18,
+    marginBottom:2,
+  },
+  habitDescription:{
+    color:"#6c6c80",
+    marginBottom:8
+  },
+  firstCard:{
+    borderWidth:2,
+    borderColor:"#4d9aff"
+  },
+  statsRow:{
+    flexDirection:"row",
+    justifyContent:"space-between",
+    marginBottom:12,
+    marginTop:8,
+  },
+  statBadge:{
+    backgroundColor:'#fff3e0',
+    borderRadius:10,
+    paddingHorizontal:12,
+    paddingVertical:6,
+    alignItems:"center",
+    minWidth:60,
+  },
+  statBadgeGold:{
+    backgroundColor:'#fffde7',
+    borderRadius:10,
+    paddingHorizontal:12,
+    paddingVertical:6,
+    alignItems:"center",
+    minWidth:60,
+  },
+  statBadgeGreen:{
+    backgroundColor:'#e8f5e9',
+    borderRadius:10,
+    paddingHorizontal:12,
+    paddingVertical:6,
+    alignItems:"center",
+    minWidth:60,
+  },
+  statBadgeText:{
+    fontWeight:"bold",
+    fontSize:15,
+    color:"#22223b"
+  },
+  statLabel:{
+    fontSize:11,
+    color:"#888",
+    marginTop:2,
+    fontWeight:"500"
+  }
+
+})
