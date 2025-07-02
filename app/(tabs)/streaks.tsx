@@ -10,9 +10,9 @@ import { Card, Text } from 'react-native-paper';
 
 const Streak = () => {
 
-  const [habits,setHabits]=useState<Habit[]>([]);
-  const [completedHabits,setCompletedHabits]=useState<HabitCompletion[]>([]);
-  const {user} =useAuth();
+const [habits,setHabits]=useState<Habit[]>([]);
+const [completedHabits,setCompletedHabits]=useState<HabitCompletion[]>([]);
+const {user} =useAuth();
 
   useEffect(()=>{
   
@@ -32,7 +32,7 @@ const Streak = () => {
             HABITS_COLLECTION_ID,
             [Query.equal("user_id",user?.$id?? "")]//this means when database user id not euqal in the database user id pass the empty string
           );
-          console.log(response.documents);
+          //console.log(response.documents);
           setHabits(response.documents as Habit[]);
         }catch(error){
           console.log(error);
@@ -92,13 +92,15 @@ const Streak = () => {
         }
       }
       else{
-        if(currentStreak > bestStreak){
-          bestStreak = currentStreak;
-        }
-        streak =currentStreak
-        lastDate =date
+        currentStreak=1;
       }
-    })
+
+      if(currentStreak > bestStreak){
+          bestStreak = currentStreak;
+      }
+      streak =currentStreak
+      lastDate =date
+    });
 
     return{ streak , bestStreak , total };
   };
@@ -108,14 +110,33 @@ const Streak = () => {
     return{habit,bestStreak,streak ,total}
   });
 
-  const rankedHabits =habitStreaks.sort((a,b)=>a.bestStreak-b.bestStreak)
+  const rankedHabits =habitStreaks.sort((a,b)=>b.bestStreak-a.bestStreak)
   //console.log(rankedHabits.map((h)=>h.habit.tittle));
+  const badgeStyles =[styles.badge1,styles.badge2,styles.badge3]
   
   return (
     <SafeAreaView style={{flex:1}}>
     <View style={styles.container}>
-      <Text style={styles.title}>Habit Streaks</Text>
-    <ScrollView>
+      <Text style={styles.title} variant='headlineSmall'>{" "} Habit Streaks</Text>
+      {rankedHabits.length > 0 &&(
+        <View style={styles.rankingContainer}>
+          {" "}
+          <Text style={styles.rankingTitle}>🏅 Top Streaks</Text>{" "}
+          {rankedHabits.slice(0,3).map((item,key)=>(
+            <View key={key} style={styles.rankingRow}>
+              <View style={[styles.rankingBadge,badgeStyles[key]]}>
+                <Text style={styles.rankingBadgeText}>{key +1}</Text>
+              </View>
+                <Text style={styles.rankingHabit}>{item.habit.tittle}</Text>
+                <Text style={styles.rankingStreak}>{item.bestStreak}</Text>
+            </View>
+          ))}
+        </View>
+      )
+
+      }
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+
       {habits.length ===0 ?(
         <View  >
           {" "}
@@ -144,7 +165,7 @@ const Streak = () => {
                 <View style={styles.statBadgeGreen}>
                   <Text style={styles.statBadgeText}>✅{total}</Text>
                   <Text style={styles.statLabel}>Total</Text>
-                </View> 
+                </View>
 
               </View>
               
@@ -239,6 +260,67 @@ const styles = StyleSheet.create ({
     color:"#888",
     marginTop:2,
     fontWeight:"500"
+  },
+  rankingContainer:{
+    marginBottom:24,
+    backgroundColor:"#fff",
+    borderRadius:16,
+    padding:16,
+    elevation:2,
+    shadowColor:"#000",
+    shadowOffset:{width:0,height:2},
+    shadowOpacity:0.08,
+    shadowRadius:8,
+    borderWidth:1,
+    borderColor:"#f0f0f0",
+  },
+  rankingTitle:{
+    fontWeight:"bold",
+    fontSize:18,
+    marginBottom:12,
+    color:"#4d50ff",
+    letterSpacing:0.5,
+  },
+  rankingRow:{
+    flexDirection:"row",
+    alignItems:"center",
+    marginBottom:8,
+    borderBottomWidth:1,
+    borderBottomColor:"#d3d1d1",
+    paddingBottom:8
+  },
+  rankingBadge:{
+    width:28,
+    height:28,
+    borderRadius:14,
+    alignItems:"center",
+    justifyContent:"center",
+    marginRight:10,
+    backgroundColor:"#e0e0e0"
+  },
+  badge1:{
+    backgroundColor:"#ffd700"
+  },
+  badge2:{
+    backgroundColor:"#c0c0c0"
+  },
+  badge3:{
+    backgroundColor:"#cd7f32"
+  },
+  rankingBadgeText:{
+    fontWeight:"bold",
+    color:"#fff",
+    fontSize:15,
+  },
+  rankingHabit:{
+    flex:1,
+    fontSize:15,
+    color:"#333",
+    fontWeight:"600"
+  },
+  rankingStreak:{
+    fontSize:14,
+    color:"#4d50ff",
+    fontWeight:"bold"
   }
-
 })

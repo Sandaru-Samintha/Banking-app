@@ -164,7 +164,7 @@ export default function Index() {
             <Text variant="headlineSmall" style={styles.title}>Today's Habits</Text>
             <Button mode="text" onPress={signOut} icon="logout">Log out</Button>
           </View>
-          <ScrollView>
+          <ScrollView showsVerticalScrollIndicator={false} >
           {habits?.length === 0?(
             <View style={styles.emptyState} >
               {" "}
